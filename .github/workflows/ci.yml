@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "src/**.tsx?"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "src/**.tsx?"
+      - "scripts/**"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/ci.yml"
+
+env:
+  default_node_version: "lts/*"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{env.default_node_version}}
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: |
+            ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Dependencies
+        run: pnpm i
+
+      - name: Lint
+        run: |
+          pnpm run lint
+
+  type:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{env.default_node_version}}
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: |
+            ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Dependencies
+        run: pnpm i
+
+      - name: Lint
+        run: |
+          pnpm run lint:type
+
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yml
+
+  # test:
+  #   name: Test
+  #   needs: build
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       os: [windows-latest, macos-latest, ubuntu-latest]
+  #       nove_version: [18, 20]
+  #     fail-fast: false
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: artifact
+
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{matrix.nove_version}}
+
+  #     - uses: pnpm/action-setup@v2
+  #       name: Install pnpm
+  #       with:
+  #         version: 8
+
+  #     - name: Install Dependencies
+  #       run: pnpm i
+
+  #     - name: Test
+  #       run: |
+  #         pnpm run test
