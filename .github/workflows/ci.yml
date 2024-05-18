@@ -32,10 +32,8 @@ jobs:
         with:
           node-version: ${{env.default_node_version}}
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
-        with:
-          version: 8
 
       - name: Get pnpm store directory
         shell: bash
@@ -68,10 +66,8 @@ jobs:
         with:
           node-version: ${{env.default_node_version}}
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
-        with:
-          version: 8
 
       - name: Get pnpm store directory
         shell: bash
@@ -119,10 +115,8 @@ jobs:
   #       with:
   #         node-version: ${{matrix.nove_version}}
 
-  #     - uses: pnpm/action-setup@v3
+  #     - uses: pnpm/action-setup@v4
   #       name: Install pnpm
-  #       with:
-  #         version: 8
 
   #     - name: Install Dependencies
   #       run: pnpm i
